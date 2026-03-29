@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Starting build process..."
+      - echo "Checking files..."
+      - ls -la
+
+  build:
+    commands:
+      - echo "Build started on `date`"
+      - echo "Syncing files to S3..."
+      - aws s3 sync . s3://my-first-website-banku --delete --exclude ".git/*" --exclude "buildspec.yml"
+
+  post_build:
+    commands:
+      - echo "Build completed on `date`"
+      - echo "Invalidating CloudFront cache..."
+      - aws cloudfront create-invalidation --distribution-id E1PQ7E75MIAT5W --paths "/*"
+      - echo "Deployment complete!"
+
+artifacts:
+  files:
+    - '**/*'
